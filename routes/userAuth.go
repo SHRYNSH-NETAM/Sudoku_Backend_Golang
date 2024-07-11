@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 
+	"github.com/SHRYNSH-NETAM/Sudoku_Backend/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -15,6 +16,7 @@ func UserAuthRouter() http.Handler {
 	})
 
 	r.Group(func(r chi.Router) {
+		r.Use(middleware.JwtAuth)
 		r.Delete("/deleteAccount", DeleteAccount)
 	})
 
