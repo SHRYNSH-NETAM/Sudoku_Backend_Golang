@@ -18,7 +18,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	var req models.LoginUser
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Fatal(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w,"Error occured while Decoding Request!",http.StatusBadRequest)
 		return 
 	}
 
@@ -40,21 +40,14 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		existingUser = <- existingUserName
 	}
 
-	// existingUser := initializers.FindData(models.Fuser{Email: cleanUsernameoremail}); 
-	// if existingUser==nil {
-	// 	existingUser = initializers.FindData(models.Fuser{Username: cleanUsernameoremail});
-	// }
-
 	if existingUser==nil {
 		http.Error(w,"User Not Found", http.StatusNotFound)
-		json.NewEncoder(w).Encode(models.ResStruct{Message: "User Not Found"})
 		return
 	}
 
 	isPasswordCorrect := bcrypt.CompareHashAndPassword([]byte(existingUser.Password),[]byte(req.Password))
 	if isPasswordCorrect != nil {
 		http.Error(w,"Password is Incorrect",http.StatusNotFound)
-		json.NewEncoder(w).Encode(models.ResStruct{Message: "Password is Incorrect"})
 		return 
 	}
 
@@ -73,7 +66,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	var req models.LoginUser
 	if err := json.NewDecoder(r.Body).Decode(&req); err!=nil {
 		log.Fatal(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w,"Error occured while Decoding Request!",http.StatusBadRequest)
 		return
 	}
 	
@@ -82,28 +75,24 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 	existingEmail := initializers.FindData(models.Fuser{Email: cleanEmail})
 	if existingEmail!=nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.ResStruct{Message: "This email is already associated with an existing account"})
+		http.Error(w,"This email is already associated with an existing account",http.StatusConflict)
 		return
 	}
 
 	existingUsername := initializers.FindData(models.Fuser{Username: cleanUsername})
 	if existingUsername!=nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.ResStruct{Message: "Username already exists"})
+		http.Error(w,"Username already taken",http.StatusConflict)
 		return
 	}
 
 	if req.Password!=req.Repeatpassword {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.ResStruct{Message: "Passwords don't match"})
+		http.Error(w,"Passwords don't match",http.StatusBadGateway)
 		return
 	}
 
 	hashedPwd, err := bcrypt.GenerateFromPassword([]byte(req.Password),12)
 	if err!= nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.ResStruct{Message: "Error"})
+		http.Error(w,"Error while hashing Password. Please try again!",http.StatusInternalServerError)
 		return
 	}
 
@@ -112,15 +101,14 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	done := initializers.AddData(newUser)
 
 	if !done {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.ResStruct{Message: "Something went wrong!"})
+		http.Error(w,"Error while storing Password. Please try again!",http.StatusInternalServerError)
 		return
 	}
 
 	tokenString, err := middleware.CreateToken(newUser.Email,newUser.Username)
 
 	if err!=nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w,"Error while creating Token. Please try again!",http.StatusInternalServerError)
 		return
 	}
 

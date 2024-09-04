@@ -237,7 +237,7 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 	var recSudoku SudokuGrid
 
 	if err := json.NewDecoder(r.Body).Decode(&recSudoku); err!=nil {
-		http.Error(w,"Error while decoding received Sudoku1", http.StatusInternalServerError)
+		http.Error(w,"Error while decoding received Sudoku", http.StatusInternalServerError)
 		return
 	}
 
@@ -245,19 +245,19 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 
 	claims, ok := r.Context().Value(jwtPayload).(jwt.MapClaims)
 	if !ok {
-		http.Error(w, "Could not retrieve JWT Payload", http.StatusUnauthorized)
+		http.Error(w, "Could not retrieve JWT Payload. Please Log in Again", http.StatusUnauthorized)
 		return
 	}
 
 	userEmail, ok := claims["email"].(string)
 	if !ok {
-		http.Error(w, "Email not found in JWT payload", http.StatusUnauthorized)
+		http.Error(w, "Email not found in JWT payload. Please Log in Again", http.StatusUnauthorized)
 		return
 	}
 
 	result := initializers.FindData(models.Fuser{Email: userEmail})
 	if result == nil {
-		http.Error(w, "User data not found", http.StatusNotFound)
+		http.Error(w, "User data not found. Please Sign In", http.StatusNotFound)
 		return
 	}
 
@@ -276,7 +276,6 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 	valid := true
 	if valid {
 		if err := UpdateMyStatistics(userEmail,recSudoku.Mode); err != nil {
-			fmt.Printf("Error: %v", err)
 			http.Error(w, "Failed to Update Statistics", http.StatusInternalServerError)
 			return
 		}
