@@ -22,10 +22,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	rtr.Use(httplog.Logger)
 
 	rtr.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../build/index.html")
+		http.ServeFile(w, r, "build/index.html")
 	})
 
-	rtr.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("../build/static"))))
+	rtr.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("build/static"))))
 	rtr.Mount("/api/v1/game", routes.GameRouter())
 	rtr.Mount("/api/v1/auth", routes.UserAuthRouter())
 	rtr.Mount("/api/v1/statistics", routes.StatisticsRouter())
