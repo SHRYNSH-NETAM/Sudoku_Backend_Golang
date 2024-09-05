@@ -6,16 +6,16 @@ import (
 	"os"
 
 	"github.com/MadAppGang/httplog"
-	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
+	// "github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/middleware"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/routes"
 	"github.com/go-chi/chi/v5"
 )
 
-func init() {
-	initializers.Initenv()
-	initializers.Connect2DB()
-}
+// func init() {
+// 	initializers.Initenv()
+// 	initializers.Connect2DB()
+// }
 
 func main() {
 	r := chi.NewRouter()
