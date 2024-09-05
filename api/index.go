@@ -1,9 +1,7 @@
-package main
+package handler
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/MadAppGang/httplog"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
@@ -17,26 +15,20 @@ func init() {
 	initializers.Connect2DB()
 }
 
-func main() {
-	r := chi.NewRouter()
-	r.Use(middleware.Cors)
-	r.Use(httplog.Logger)
+func Handler(w http.ResponseWriter, r *http.Request) {
+	rtr := chi.NewRouter()
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	rtr.Use(middleware.Cors)
+	rtr.Use(httplog.Logger)
+
+	rtr.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../build/index.html")
 	})
 
-	// Serve static files from the "build" directory
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("../build/static"))))
+	rtr.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("../build/static"))))
+	rtr.Mount("/api/v1/game", routes.GameRouter())
+	rtr.Mount("/api/v1/auth", routes.UserAuthRouter())
+	rtr.Mount("/api/v1/statistics", routes.StatisticsRouter())
 
-	r.Mount("/api/v1/game", routes.GameRouter())
-	r.Mount("/api/v1/auth", routes.UserAuthRouter())
-	r.Mount("/api/v1/statistics", routes.StatisticsRouter())
-
-	PORT := os.Getenv("PORT")
-	if PORT=="" {
-		PORT = ":8000"
-	}
-	fmt.Printf("Server Running on port %v \n",PORT)
-	http.ListenAndServe(PORT, r)
+	rtr.ServeHTTP(w, r)
 }
