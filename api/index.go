@@ -26,6 +26,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	rtr.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("../build/static"))))
+	rtr.Get("/api/v1/test", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Hello World"))
+	})	
 	rtr.Mount("/api/v1/game", routes.GameRouter())
 	rtr.Mount("/api/v1/auth", routes.UserAuthRouter())
 	rtr.Mount("/api/v1/statistics", routes.StatisticsRouter())
