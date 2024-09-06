@@ -20,12 +20,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	rtr.Use(middleware.Cors)
 	rtr.Use(httplog.Logger)
-
-	rtr.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../build/index.html")
-	})
-
-	rtr.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("../build/static"))))
 	rtr.Get("/api/v1/test", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Hello World"))

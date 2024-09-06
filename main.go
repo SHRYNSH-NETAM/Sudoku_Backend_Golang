@@ -22,13 +22,6 @@ func main() {
 	r.Use(middleware.Cors)
 	r.Use(httplog.Logger)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./build/index.html")
-	})
-
-	// Serve static files from the "build" directory
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./build/static"))))
-
 	r.Mount("/api/v1/game", routes.GameRouter())
 	r.Mount("/api/v1/auth", routes.UserAuthRouter())
 	r.Mount("/api/v1/statistics", routes.StatisticsRouter())
