@@ -11,7 +11,6 @@ import (
 )
 
 func init() {
-	// initializers.Initenv()
 	initializers.Connect2DB()
 }
 
