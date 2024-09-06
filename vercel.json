@@ -1,20 +1,26 @@
 {
   "builds": [
-    { "src": "api/*.go", "use": "@vercel/go" },
-    { "src": "build/**", "use": "@vercel/static" }
+      {
+          "src": "api/*.go",
+          "use": "@vercel/go"
+      },
+      {
+          "src": "build/**",
+          "use": "@vercel/static"
+      }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/build/static/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/build/index.html"
-    }
+      {
+          "src": "/api/(.*)",
+          "dest": "/api/$1"
+      },
+      {
+          "src": "/static/(.*)",
+          "dest": "/build/static/$1"
+      },
+      {
+          "src": "/(.*)",
+          "dest": "/build/index.html"
+      }
   ]
 }
