@@ -4,15 +4,15 @@ import (
 	"net/http"
 
 	"github.com/MadAppGang/httplog"
-	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
+	// "github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/middleware"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/routes"
 	"github.com/go-chi/chi/v5"
 )
 
 func init() {
-	initializers.Initenv()
-	initializers.Connect2DB()
+	// initializers.Initenv()
+	// initializers.Connect2DB()
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
