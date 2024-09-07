@@ -241,22 +241,38 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	for  i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			if recSudoku.GridToBeFilled[i][j] != recSudoku.Grid[i][j] {
+				http.Error(w, "Incorrect Solution", http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	Mistakes, Cheats := detectCheatnMistake(recSudoku.Grid, recSudoku.GridWithBlanks, recSudoku.History)
+	response := []float64{float64(Mistakes), float64(Cheats)}
+
+	w.Header().Set("Content-Type", "application/json")
 	var jwtPayload models.Key = "jwtPayload"
 
 	claims, ok := r.Context().Value(jwtPayload).(jwt.MapClaims)
 	if !ok {
+		json.NewEncoder(w).Encode(models.ResStruct{Result: response})
 		http.Error(w, "Could not retrieve JWT Payload. Please Log in Again", http.StatusUnauthorized)
 		return
 	}
 
 	userEmail, ok := claims["email"].(string)
 	if !ok {
+		json.NewEncoder(w).Encode(models.ResStruct{Result: response})
 		http.Error(w, "Email not found in JWT payload. Please Log in Again", http.StatusUnauthorized)
 		return
 	}
 
 	result := initializers.FindData(models.Fuser{Email: userEmail})
 	if result == nil {
+		json.NewEncoder(w).Encode(models.ResStruct{Result: response})
 		http.Error(w, "User data not found. Please Sign In", http.StatusNotFound)
 		return
 	}
@@ -270,8 +286,8 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 		}
 	}
 
-	Mistakes, Cheats := detectCheatnMistake(result.CurrentSudoku.SolvedGrid, result.CurrentSudoku.UnSolvedGrid, recSudoku.History)
-	response := []float64{float64(Mistakes), float64(Cheats), time.Since(result.CurrentSudoku.Time).Hours()}
+	Mistakes, Cheats = detectCheatnMistake(result.CurrentSudoku.SolvedGrid, result.CurrentSudoku.UnSolvedGrid, recSudoku.History)
+	response = []float64{float64(Mistakes), float64(Cheats), time.Since(result.CurrentSudoku.Time).Hours()}
 
 	valid := true
 	if valid {
@@ -281,7 +297,6 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 		}
 	}
 	
-	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(models.ResStruct{Result: response}); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
@@ -382,32 +397,3 @@ func isSafe(grid [][]int, row, col, num int) bool {
     }
     return true
 }
-// func printPossudoku(possudoku [][][]int) {
-//     for i, row := range possudoku {
-//         if i > 0 && i%3 == 0 {
-//             fmt.Println("------+-------+------")
-//         }
-//         for j, cell := range row {
-//             if j > 0 && j%3 == 0 {
-//                 fmt.Print("| ")
-//             }
-//             if len(cell) == 1 && cell[0] == 0 {
-//                 fmt.Print(".      ")
-//             } else {
-//                 fmt.Print(formatCell(cell))
-//             }
-//         }
-//         fmt.Println()
-//     }
-// }
-
-// func formatCell(cell []int) string {
-//     if len(cell) == 0 {
-//         return ".      "
-//     }
-//     values := make([]string, len(cell))
-//     for i, num := range cell {
-//         values[i] = fmt.Sprintf("%d", num)
-//     }
-//     return fmt.Sprintf("%-6s", strings.Join(values, ""))
-// }

@@ -20,9 +20,10 @@ func Cors(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
         if origin == "https://sudoku-frontend-xi.vercel.app" {
             w.Header().Set("Access-Control-Allow-Origin", origin)
-            w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-            
+            w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+            w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
+			w.Header().Set("Access-Control-Allow-Credentials","true")
+			w.Header().Set("Access-Control-Max-Age", "300")
             
             if r.Method == "OPTIONS" {
                 w.WriteHeader(http.StatusOK)
@@ -31,7 +32,6 @@ func Cors(next http.Handler) http.Handler {
 
             next.ServeHTTP(w, r)
         } else {
-            
             http.Error(w, "Forbidden", http.StatusForbidden)
         }
 	})
