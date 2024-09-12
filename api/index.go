@@ -2,6 +2,8 @@ package handler
 
 import (
 	"net/http"
+	"embed"
+	"io/fs"
 
 	"github.com/MadAppGang/httplog"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
@@ -10,6 +12,9 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+//go:embed all:build
+var embedBuildFiles embed.FS
+
 func init() {
 	initializers.Connect2DB()
 }
@@ -17,12 +22,13 @@ func init() {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	rtr := chi.NewRouter()
 
+	staticFiles, _ := fs.Sub(embedBuildFiles, "build")
+	fileServer := http.FileServer(http.FS(staticFiles))
+
 	rtr.Use(middleware.Cors)
 	rtr.Use(httplog.Logger)
-	rtr.Get("/api/v1/test", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello World"))
-	})	
+	
+	rtr.Handle("/*", http.StripPrefix("/", fileServer))	
 	rtr.Mount("/api/v1/game", routes.GameRouter())
 	rtr.Mount("/api/v1/auth", routes.UserAuthRouter())
 	rtr.Mount("/api/v1/statistics", routes.StatisticsRouter())
