@@ -33,5 +33,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	rtr.Mount("/api/v1/auth", routes.UserAuthRouter())
 	rtr.Mount("/api/v1/statistics", routes.StatisticsRouter())
 
+	rtr.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "build/index.html")
+	})
+
 	rtr.ServeHTTP(w, r)
 }
