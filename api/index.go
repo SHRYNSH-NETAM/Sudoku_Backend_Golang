@@ -7,7 +7,7 @@ import (
 
 	"github.com/MadAppGang/httplog"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
-	"github.com/SHRYNSH-NETAM/Sudoku_Backend/middleware"
+	// "github.com/SHRYNSH-NETAM/Sudoku_Backend/middleware"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/routes"
 	"github.com/go-chi/chi/v5"
 )
