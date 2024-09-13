@@ -7,7 +7,7 @@ import (
 
 	"github.com/MadAppGang/httplog"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
-	// "github.com/SHRYNSH-NETAM/Sudoku_Backend/middleware"
+	"github.com/SHRYNSH-NETAM/Sudoku_Backend/middleware"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/routes"
 	"github.com/go-chi/chi/v5"
 )
@@ -25,7 +25,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	staticFiles, _ := fs.Sub(embedBuildFiles, "build")
 	fileServer := http.FileServer(http.FS(staticFiles))
 
-	// rtr.Use(middleware.Cors)
+	rtr.Use(middleware.Cors)
 	rtr.Use(httplog.Logger)
 	
 	rtr.Handle("/*", http.StripPrefix("/", fileServer))	

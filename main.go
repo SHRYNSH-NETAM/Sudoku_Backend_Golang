@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	// "embed"
-	// "io/fs"
+	"embed"
+	"io/fs"
 
 	"github.com/MadAppGang/httplog"
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
@@ -14,8 +14,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// //go:embed all:build
-// var embedBuildFiles embed.FS
+//go:embed all:build
+var embedBuildFiles embed.FS
 
 func init() {
 	initializers.Initenv()
@@ -25,8 +25,8 @@ func init() {
 func main() {
 	r := chi.NewRouter()
 
-	// staticFiles, _ := fs.Sub(embedBuildFiles, "build")
-	// fileServer := http.FileServer(http.FS(staticFiles))
+	staticFiles, _ := fs.Sub(embedBuildFiles, "build")
+	fileServer := http.FileServer(http.FS(staticFiles))
 
 	r.Use(middleware.Cors)
 	r.Use(httplog.Logger)
@@ -35,7 +35,7 @@ func main() {
 	r.Mount("/api/v1/auth", routes.UserAuthRouter())
 	r.Mount("/api/v1/statistics", routes.StatisticsRouter())
 
-	// r.Handle("/*", http.StripPrefix("/", fileServer))
+	r.Handle("/*", http.StripPrefix("/", fileServer))
 
 	PORT := os.Getenv("PORT")
 	if PORT=="" {
