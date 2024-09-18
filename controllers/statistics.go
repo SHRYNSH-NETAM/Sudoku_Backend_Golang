@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/SHRYNSH-NETAM/Sudoku_Backend/initializers"
@@ -34,7 +33,6 @@ func UpdateMyStatistics(userEmail string, rmode string) error{
 	if Success := initializers.UpdateData(models.Fuser{Email: result.Email},models.User{Statistics: newStats}); !Success {
 		return errors.New("something went wrong")
 	}
-	fmt.Println("Success")
 	return nil
 }
 

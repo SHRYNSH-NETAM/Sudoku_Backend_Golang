@@ -2,7 +2,7 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -230,6 +230,11 @@ func StoreSudoku(w http.ResponseWriter, r *http.Request, sudoku models.Sudokugri
 			return false
 		}
 
+		err = initializers.Add2Redis(email, sudoku);
+		if err!=nil {
+			log.Fatal(err)
+		}
+
 		return true
 }
 
@@ -269,25 +274,35 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "Email not found in JWT payload. Please Log in Again", http.StatusUnauthorized)
 		return
 	}
-
-	result := initializers.FindData(models.Fuser{Email: userEmail})
-	if result == nil {
-		json.NewEncoder(w).Encode(models.ResStruct{Result: response})
-		http.Error(w, "User data not found. Please Sign In", http.StatusNotFound)
-		return
+	
+	var CurrentSudoku models.Sudokugrid
+	// start := time.Now().UnixNano() / int64(time.Millisecond)
+	CurrentSudoku,err := initializers.Get2Redis(userEmail)
+	if err!=nil {
+		log.Println("CurrentSudoku did not found in Cache")
+		result := initializers.FindData(models.Fuser{Email: userEmail})
+		if result == nil {
+			json.NewEncoder(w).Encode(models.ResStruct{Result: response})
+			http.Error(w, "User data not found. Please Sign In", http.StatusNotFound)
+			return
+		}
+		CurrentSudoku = result.CurrentSudoku
 	}
+	// end := time.Now().UnixNano() / int64(time.Millisecond)
+	// diff := end - start
+    // log.Printf("Duration(ms): %d", diff)
 
 	for  i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
-			if recSudoku.GridToBeFilled[i][j] != result.CurrentSudoku.SolvedGrid[i][j] {
+			if recSudoku.GridToBeFilled[i][j] != CurrentSudoku.SolvedGrid[i][j] {
 				http.Error(w, "Incorrect Solution", http.StatusInternalServerError)
 				return
 			}
 		}
 	}
 
-	Mistakes, Cheats = detectCheatnMistake(result.CurrentSudoku.SolvedGrid, result.CurrentSudoku.UnSolvedGrid, recSudoku.History)
-	response = []float64{float64(Mistakes), float64(Cheats), time.Since(result.CurrentSudoku.Time).Hours()}
+	Mistakes, Cheats = detectCheatnMistake(CurrentSudoku.SolvedGrid, CurrentSudoku.UnSolvedGrid, recSudoku.History)
+	response = []float64{float64(Mistakes), float64(Cheats), time.Since(CurrentSudoku.Time).Hours()}
 
 	valid := true
 	if valid {
@@ -320,13 +335,13 @@ func detectCheatnMistake(solsudoku [][]int, sudoku [][]int, history [][]int) (in
 			possudoku,PossHashGrid = generatePossudoku(sudoku)
 		} else if len(possudoku[row][col])==1 && possudoku[row][col][0]!=value {
 			mistakes++
-			fmt.Printf("Mistake with %v at (%v,%v), Possible values:%v\n",value,row,col,possudoku[row][col])
+			// fmt.Printf("Mistake with %v at (%v,%v), Possible values:%v\n",value,row,col,possudoku[row][col])
 			sudoku[row][col] = value
 			possudoku,PossHashGrid = generatePossudoku(sudoku)
 		} else {
 			if solsudoku[row][col]==value {
 				cheats++;
-				fmt.Printf("Cheat with %v at (%v,%v), Possible values:%v\n",value,row,col,possudoku[row][col])
+				// fmt.Printf("Cheat with %v at (%v,%v), Possible values:%v\n",value,row,col,possudoku[row][col])
 			} else{
 				flag:=0
 				for _,val := range possudoku[row][col] {
@@ -337,7 +352,7 @@ func detectCheatnMistake(solsudoku [][]int, sudoku [][]int, history [][]int) (in
 				}
 				if flag==0 {
 					mistakes++;
-					fmt.Printf("Mistake with %v at (%v,%v), Possible values:%v\n",value,row,col,possudoku[row][col])
+					// fmt.Printf("Mistake with %v at (%v,%v), Possible values:%v\n",value,row,col,possudoku[row][col])
 				}
 			}
 			sudoku[row][col] = value
