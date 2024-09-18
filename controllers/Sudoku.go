@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -246,6 +247,8 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	fmt.Println("///////")
+
 	for  i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
 			if recSudoku.GridToBeFilled[i][j] != recSudoku.Grid[i][j] {
@@ -254,6 +257,8 @@ func ValidateSudoku(w http.ResponseWriter, r *http.Request){
 			}
 		}
 	}
+
+	fmt.Println("///////")
 
 	Mistakes, Cheats := detectCheatnMistake(recSudoku.Grid, recSudoku.GridWithBlanks, recSudoku.History)
 	response := []float64{float64(Mistakes), float64(Cheats)}

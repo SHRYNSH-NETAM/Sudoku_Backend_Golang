@@ -33,8 +33,6 @@ func main() {
 	if PORT=="" {
 		PORT = ":8000"
 	}
-	// fmt.Printf("Server Running on port %v \n",PORT)
-	// http.ListenAndServe(PORT, r)
 
 	fmt.Printf("Server Running on port %v\n", PORT)
 	err := http.ListenAndServe(PORT, r)

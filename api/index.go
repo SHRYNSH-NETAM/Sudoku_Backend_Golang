@@ -17,6 +17,7 @@ var embedBuildFiles embed.FS
 
 func init() {
 	initializers.Connect2DB()
+	initializers.Connect2Redis()
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
